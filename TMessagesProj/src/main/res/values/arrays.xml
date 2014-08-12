@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="reply_choices">
-        <item>I'm on my way.</item>
-        <item>I'm here.</item>
+        <item>I\'m on my way.</item>
+        <item>I\'m here.</item>
         <item>Where are you?</item>
         <item>Oh okay.</item>
     </string-array>
