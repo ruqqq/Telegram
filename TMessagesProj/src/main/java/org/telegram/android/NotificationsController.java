@@ -18,8 +18,12 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,16 +39,18 @@ import org.telegram.objects.MessageObject;
 import org.telegram.ui.ApplicationLoader;
 import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.PopupNotificationActivity;
+import org.telegram.ui.ReplyActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class NotificationsController {
+    public static final String EXTRA_VOICE_REPLY = "extra_voice_reply";
 
     private ArrayList<MessageObject> pushMessages = new ArrayList<MessageObject>();
     private HashMap<Integer, MessageObject> pushMessagesDict = new HashMap<Integer, MessageObject>();
-    private NotificationManager notificationManager = null;
+    private NotificationManagerCompat notificationManager = null;
     private HashMap<Long, Integer> pushDialogs = new HashMap<Long, Integer>();
     public ArrayList<MessageObject> popupMessages = new ArrayList<MessageObject>();
     private long openned_dialog_id = 0;
@@ -68,7 +74,7 @@ public class NotificationsController {
     }
 
     public NotificationsController() {
-        notificationManager = (NotificationManager)ApplicationLoader.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager = NotificationManagerCompat.from(ApplicationLoader.applicationContext);
     }
 
     public void cleanup() {
@@ -352,6 +358,22 @@ public class NotificationsController {
                     .setAutoCancel(true)
                     .setContentText(detailText)
                     .setContentIntent(contentIntent);
+
+            if ((int)dialog_id != 0) {
+                // Create remote input
+                RemoteInput remoteInput = new RemoteInput.Builder(EXTRA_VOICE_REPLY)
+                        .setLabel(ApplicationLoader.applicationContext.getString(R.string.Reply))
+                        .setChoices(ApplicationLoader.applicationContext.getResources().getStringArray(R.array.reply_choices))
+                        .build();
+
+                // Create the reply action and add the remote input
+                NotificationCompat.Action action =
+                        new NotificationCompat.Action.Builder(R.drawable.ic_reply_icon, ApplicationLoader.applicationContext.getResources().getString(R.string.Reply), contentIntent)
+                                .addRemoteInput(remoteInput)
+                                .build();
+
+                mBuilder = mBuilder.extend(new NotificationCompat.WearableExtender().addAction(action));
+            }
 
             String lastMessage = null;
             if (pushMessages.size() == 1) {

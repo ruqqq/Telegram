@@ -324,6 +324,7 @@
     <string name="OpenPhoto">Open photo</string>
     <string name="Set">Set</string>
     <string name="OK">OK</string>
+    <string name="Reply">Reply</string>
 
     <!--messages-->
     <string name="ActionKickUser">un1 removed un2</string>

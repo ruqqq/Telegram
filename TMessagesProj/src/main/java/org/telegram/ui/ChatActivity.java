@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -187,6 +188,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         final int chatId = arguments.getInt("chat_id", 0);
         final int userId = arguments.getInt("user_id", 0);
         final int encId = arguments.getInt("enc_id", 0);
+        final String messageToSend = arguments.getString("message_to_send", null);
         scrollToTopOnResume = arguments.getBoolean("scrollToTopOnResume", false);
 
         if (chatId != 0) {
@@ -340,6 +342,10 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         } else {
             downloadPhotos = preferences.getInt("photo_download_user2", 0);
             downloadAudios = preferences.getInt("audio_download_user2", 0);
+        }
+
+        if (messageToSend != null) {
+            MessagesController.getInstance().sendMessage(messageToSend, dialog_id);
         }
 
         return true;

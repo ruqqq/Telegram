@@ -16,12 +16,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
+import android.support.v4.app.RemoteInput;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.telegram.android.AndroidUtilities;
 import org.telegram.PhoneFormat.PhoneFormat;
+import org.telegram.android.NotificationsController;
 import org.telegram.messenger.ConnectionsManager;
 import org.telegram.messenger.FileLog;
 import org.telegram.android.LocaleController;
@@ -383,12 +386,15 @@ public class LaunchActivity extends ActionBarActivity implements NotificationCen
             }
         }
 
+        CharSequence messageToSend = getMessageText(intent);
+
         if (push_user_id != 0) {
             if (push_user_id == UserConfig.getClientUserId()) {
                 open_settings = 1;
             } else {
                 Bundle args = new Bundle();
                 args.putInt("user_id", push_user_id);
+                if (messageToSend != null) args.putString("message_to_send", messageToSend.toString());
                 ChatActivity fragment = new ChatActivity(args);
                 if (presentFragment(fragment, false, true)) {
                     pushOpened = true;
@@ -397,6 +403,7 @@ public class LaunchActivity extends ActionBarActivity implements NotificationCen
         } else if (push_chat_id != 0) {
             Bundle args = new Bundle();
             args.putInt("chat_id", push_chat_id);
+            if (messageToSend != null) args.putString("message_to_send", messageToSend.toString());
             ChatActivity fragment = new ChatActivity(args);
             if (presentFragment(fragment, false, true)) {
                 pushOpened = true;
@@ -404,6 +411,7 @@ public class LaunchActivity extends ActionBarActivity implements NotificationCen
         } else if (push_enc_id != 0) {
             Bundle args = new Bundle();
             args.putInt("enc_id", push_enc_id);
+            if (messageToSend != null) args.putString("message_to_send", messageToSend.toString());
             ChatActivity fragment = new ChatActivity(args);
             if (presentFragment(fragment, false, true)) {
                 pushOpened = true;
@@ -651,5 +659,14 @@ public class LaunchActivity extends ActionBarActivity implements NotificationCen
     @Override
     public void onLowMemory() {
         super.onLowMemory();
+    }
+
+    private CharSequence getMessageText(Intent intent) {
+        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+        if (remoteInput != null) {
+            return remoteInput.getCharSequence(NotificationsController.EXTRA_VOICE_REPLY);
+        }
+
+        return null;
     }
 }
